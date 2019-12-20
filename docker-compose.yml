@@ -18,5 +18,5 @@ services:
         hard: "65536"
 
 networks:
-  nextcloud:
+  timemachine:
     
