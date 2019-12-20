@@ -4,11 +4,11 @@ services:
   timemachine:
     image: odarriba/timemachine:latest
     restart: unless-stopped
-    entrypoint: ./entrypoint.sh
     networks:
       - timemachine
     volumes:
       - /data/backups/timemachine:/timemachine
+      - ./entrypoint.sh:/entrypoint.sh
     ports:
       - 548:548/tcp
       - 636:636/tcp
