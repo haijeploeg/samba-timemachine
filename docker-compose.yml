@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  timemachine:
+    image: odarriba/timemachine:latest
+    restart: unless-stopped
+    entrypoint: ./entrypoint.sh
+    networks:
+      - timemachine
+    volumes:
+      - /data/backups/timemachine:/timemachine
+    ports:
+      - 548:548/tcp
+      - 636:636/tcp
+    ulimits:
+      nofile:
+        soft: "65536"
+        hard: "65536"
+
+networks:
+  nextcloud:
+    
