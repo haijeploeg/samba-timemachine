@@ -5,9 +5,8 @@ services:
     build: .
     container_name: timemachine
     restart: unless-stopped
-    environment:
-      USER_HPLOEG: hploeg
-      PASSWORD_HPLOEG: hploeg
+    env_file:
+      - users.env
     networks:
       - timemachine
     volumes:

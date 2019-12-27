@@ -1,10 +1,12 @@
 FROM alpine:3.11
 
 ENV BACKUPDIR /backups
+ENV SAMBA_VERSION "4.11.4-r0"
 
 RUN apk --no-cache --no-progress update && \
     apk --no-cache --no-progress upgrade && \
-    apk --no-cache --no-progress add bash samba shadow tzdata && \
+    apk --no-cache --no-progress add bash shadow tzdata && \
+    apk --no-cache --no-progress add samba="$SAMBA_VERSION" && \
     addgroup -S smb && \
     adduser -S -D -H -h /tmp -s /sbin/nologin -G smb -g 'Samba User' smbuser && \
     rm -rf /tmp/*
