@@ -11,7 +11,7 @@ if [ ! "$(env | grep '^USER_')" ] || [ ! "$(env | grep '^PASSWORD_')" ]; then
     echo "Some required environment variables are not set. Did you specify USER_<username> and PASSWORD_<username>?"
     exit 1
 fi
-if [ ! grep "${BACKUPDIR}" /proc/mounts | awk '{print $1}' 2&>1 ]; then
+if [ ! $(grep "${BACKUPDIR}" /proc/mounts | awk '{print $1}' 2&>1) ]; then
     echo "${BACKUPDIR} not found did you forget to add the volume?"
     exit 1
 fi
