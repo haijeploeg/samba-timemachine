@@ -2,16 +2,18 @@ version: '3.7'
 
 services:
   timemachine:
-    image: odarriba/timemachine:latest
+    build: .
+    container_name: timemachine
     restart: unless-stopped
+    environment:
+      USER_HPLOEG: hploeg
+      PASSWORD_HPLOEG: hploeg
     networks:
       - timemachine
     volumes:
-      - /data/backups/timemachine:/timemachine
-      - ./entrypoint.sh:/entrypoint.sh
+      - ./backups:/backups
     ports:
-      - 548:548/tcp
-      - 636:636/tcp
+      - 445:445/tcp
     ulimits:
       nofile:
         soft: "65536"

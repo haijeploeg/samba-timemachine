@@ -1,7 +1,0 @@
-#!/bin/bash
-set -e
-
-# Repeat for all your accounts
-add-account USERNAME PASSWORD VOL_NAME VOL_ROOT [VOL_SIZE_MB]
-
-/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
