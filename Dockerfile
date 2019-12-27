@@ -18,7 +18,7 @@ COPY TimeMachine.quota.tmpl /etc/TimeMachine.quota.tmpl
 EXPOSE 445
 
 HEALTHCHECK --interval=60s --timeout=15s \
-            CMD smbclient -L '\\localhost' -U '%' -m SMB3
+            CMD nc -zv localhost 445 || exit 1
 
 VOLUME ["/backups"]
 
