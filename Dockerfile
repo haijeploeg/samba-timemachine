@@ -9,8 +9,6 @@ RUN apk --no-cache --no-progress update && \
     adduser -S -D -H -h /tmp -s /sbin/nologin -G smb -g 'Samba User' smbuser && \
     rm -rf /tmp/*
 
-RUN mkdir -p ${BACKUPDIR}
-
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
