@@ -1,7 +1,11 @@
 #!/bin/bash
 set -e -o pipefail
 
-export QUOTA_SIZE="${QUOTA_SIZE:-512000}"
+# QUOTA_SIZE is in Mebibyte
+# 488181 = 512GB
+# 572205 = 600GB
+# 667572 = 700GB
+export QUOTA_SIZE="${QUOTA_SIZE:-572205}"
 
 INITALIZED="/.initialized"
 QUOTA_TM=$((QUOTA_SIZE * 1048576))
@@ -12,25 +16,23 @@ if [ ! "$(env | grep '^USER_')" ] || [ ! "$(env | grep '^PASSWORD_')" ]; then
     exit 1
 fi
 
-if ! grep "${BACKUPDIR}" /proc/mounts | awk '{print $1}' 2&>1; then
-    echo "${BACKUPDIR} not found did you forget to add the volume?"
+if ! grep "${BACKUPDIR}" /proc/mounts | awk '{print $1}' &> /dev/null; then
+    echo "${BACKUPDIR} not found. Dit you add a volume for ${BACKUPDIR}?"
     exit 1
 fi
 
 for USER in "$(env | grep '^USER_')"
 do
     USERNAME=$(echo "${USER}" | cut -d '=' -f2)
-    USERNAME_UPPER="$(printf '%s\n' "${USERNAME}" | awk '{ print toupper($0) }')"
-    PASSWORD=$(env | grep '^PASSWORD_'"${USERNAME_UPPER^^}" | cut -d '=' -f2)
+    PASSWORD=$(env | grep '^PASSWORD_'"${USERNAME^^}" | cut -d '=' -f2)
     DIR=$BACKUPDIR/$USERNAME
 
-    echo $(id -u ${USERNAME})
-    if [ ! $(id -u ${USERNAME} > /dev/null 2&>1) ]; then
+    if ! id -u ${USERNAME} &> /dev/null; then
         echo "Creating user ${USERNAME}..."
         useradd --home "/backups/${USERNAME}" --shell /bin/nologin --no-create-home "${USERNAME}"
     fi
 
-    if [ ! $(pdbedit -L | grep ${USERNAME}) ]; then
+    if ! pdbedit -L | grep ${USERNAME} &> /dev/null; then
         echo "Setup SAMBA authentication for ${USERNAME}..."
         printf "%s\n%s\n" "${PASSWORD}" "${PASSWORD}" | smbpasswd -a -s "${USERNAME}"
     fi
@@ -44,7 +46,7 @@ do
 
     echo "Configuring permissions on ${DIR}..."
     chown -R "${USERNAME}:${USERNAME}" "${DIR}"
-    chmod -R u+rwX,g=,o= "${DIR}"
+    chmod -R u+rwX,g+rwX,o= "${DIR}"
 done
 
 echo "Set quota for SAMBA..."
