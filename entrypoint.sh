@@ -6,25 +6,38 @@ set -e -o pipefail
 # 572205 = 600GB
 # 667572 = 700GB
 export QUOTA_SIZE="${QUOTA_SIZE:-572205}"
+export QUOTA_TM=$((QUOTA_SIZE * 1048576))
 
-INITALIZED="/.initialized"
-QUOTA_TM=$((QUOTA_SIZE * 1048576))
+# declare arrays
+declare -A users
+declare -A passwords
 
-echo "Checking if requirements are met..."
-if [ ! "$(env | grep '^USER_')" ] || [ ! "$(env | grep '^PASSWORD_')" ]; then
-    echo "Some required environment variables are not set. Did you specify USER_<username> and PASSWORD_<username>?"
-    exit 1
-fi
-
+echo "Checking if backup directory is properly mounted..."
 if ! grep "${BACKUPDIR}" /proc/mounts | awk '{print $1}' &> /dev/null; then
     echo "${BACKUPDIR} not found. Dit you add a volume for ${BACKUPDIR}?"
     exit 1
 fi
 
-for USER in "$(env | grep '^USER_')"
+echo "Reading environment variables..."
+while IFS='=' read -r name value; do
+  if [[ $name == 'USER_'* ]]; then
+    users[$name]=$value
+  elif [[ $name == 'PASSWORD_'* ]]; then
+    passwords[$name]=$value
+  fi
+done < <(env)
+
+echo "Checking if users are properly configured..."
+if [ ${#users[@]} != ${#passwords[@]} ]; then
+  echo "Amount of users and passwords don't match, please verify your environment."
+  exit 1
+elif [[ ${#users[@]} == 0 || ${#passwords[@]} == 0 ]]; then
+  echo "No users or passwords found, please verify your environment."
+fi
+
+for USERNAME in ${users[@]};
 do
-    USERNAME=$(echo "${USER}" | cut -d '=' -f2)
-    PASSWORD=$(env | grep '^PASSWORD_'"${USERNAME^^}" | cut -d '=' -f2)
+    PASSWORD=${passwords["PASSWORD_${USERNAME^^}"]}
     DIR=$BACKUPDIR/$USERNAME
 
     if ! id -u ${USERNAME} &> /dev/null; then
