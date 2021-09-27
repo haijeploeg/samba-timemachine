@@ -2,8 +2,7 @@ version: '3.7'
 
 services:
   timemachine:
-    build: .
-    container_name: timemachine
+    image: haijeploeg/samba-timemachine
     restart: unless-stopped
     env_file:
       - users.env
