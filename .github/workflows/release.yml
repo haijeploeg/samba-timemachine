@@ -24,12 +24,8 @@ jobs:
     - name: Prepare tags
       id: prep
       run: |
-        DOCKER_NAMESPACE=haijeploeg
-        DOCKER_IMAGE=samba-timemachine
         RELEASE_TAG="${GITHUB_REF#refs/*/}"
-        TAGS="${GITHUB_REF#refs/*/} latest"
-        echo ::set-output name=namespace::${DOCKER_NAMESPACE}
-        echo ::set-output name=image::${DOCKER_IMAGE}
+        TAGS="haijeploeg/samba-timemachine:${GITHUB_REF#refs/*/},haijeploeg/samba-timemachine:latest"
         echo ::set-output name=release_tag::${RELEASE_TAG}
         echo ::set-output name=tags::${TAGS}
 
