@@ -1,13 +1,10 @@
-FROM alpine:3.11
+FROM alpine:3.14
 
 ENV BACKUPDIR /backups
 
 RUN apk --no-cache --no-progress update && \
-    apk --no-cache --no-progress upgrade && \
     apk --no-cache --no-progress add bash shadow tzdata && \
     apk --no-cache --no-progress add samba && \
-    addgroup -S smb && \
-    adduser -S -D -H -h /tmp -s /sbin/nologin -G smb -g 'Samba User' smbuser && \
     rm -rf /tmp/*
 
 COPY entrypoint.sh /entrypoint.sh
