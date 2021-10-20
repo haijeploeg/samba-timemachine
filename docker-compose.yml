@@ -9,7 +9,7 @@ services:
     networks:
       - timemachine
     volumes:
-      - /data/backups/timemachine:/backups
+      - /data/backup:/backups
     ports:
       - 445:445/tcp
     ulimits:
