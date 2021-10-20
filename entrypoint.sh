@@ -42,7 +42,7 @@ do
 
     if ! id -u ${USERNAME} &> /dev/null; then
         echo "Creating user ${USERNAME}..."
-        useradd --home "/backups/${USERNAME}" --shell /bin/nologin --no-create-home "${USERNAME}"
+        useradd --shell /bin/nologin --no-create-home "${USERNAME}"
     fi
 
     if ! pdbedit -L | grep ${USERNAME} &> /dev/null; then

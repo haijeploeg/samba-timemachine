@@ -9,7 +9,8 @@ services:
     networks:
       - timemachine
     volumes:
-      - /data/backups/timemachine:/backups
+      - /data/backups/timemachine:/timemachine
+      - /data/backups/winbackups:/winbackup
     ports:
       - 445:445/tcp
     ulimits:
