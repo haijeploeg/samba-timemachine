@@ -38,12 +38,11 @@ fi
 for USERNAME in ${users[@]};
 do
     PASSWORD=${passwords["PASSWORD_${USERNAME^^}"]}
-    DIR_TIMEMACHINE=$BACKUPDIR/timemachine/$USERNAME
-    DIR_WINBACKUP=$BACKUPDIR/winbackup/$USERNAME
+    DIR=$BACKUPDIR/$USERNAME
 
     if ! id -u ${USERNAME} &> /dev/null; then
         echo "Creating user ${USERNAME}..."
-        useradd --shell /bin/nologin --no-create-home "${USERNAME}"
+        useradd --home "/backups/${USERNAME}" --shell /bin/nologin --no-create-home "${USERNAME}"
     fi
 
     if ! pdbedit -L | grep ${USERNAME} &> /dev/null; then
@@ -51,27 +50,16 @@ do
         printf "%s\n%s\n" "${PASSWORD}" "${PASSWORD}" | smbpasswd -a -s "${USERNAME}"
     fi
 
-    #### WinBackup Directory ####
-    if [ ! -d "$DIR_WINBACKUP" ]; then
-        echo "Creating winbackup backup directory for ${USERNAME}..."
-        mkdir -p "${DIR_WINBACKUP}"
+    if [ ! -d "$DIR" ]; then
+        echo "Creating backup directory for ${USERNAME}..."
+        mkdir "${DIR}"
     fi
+    touch "${DIR}/.com.apple.TimeMachine.supported"
+    sed "s/<integer>.*<\/integer>/<integer>${QUOTA_TM}<\/integer>/g" /etc/TimeMachine.quota.tmpl > "${DIR}/.com.apple.TimeMachine.quota.plist"
 
-    echo "Configuring permissions on ${DIR_WINBACKUP}..."
-    chown -R "${USERNAME}:${USERNAME}" "${DIR_WINBACKUP}"
-    chmod -R u+rwX,g+rwX,o= "${DIR_WINBACKUP}"
-
-    #### TimeMachine Directory ####
-    if [ ! -d "$DIR_TIMEMACHINE" ]; then
-        echo "Creating timemachine backup directory for ${USERNAME}..."
-        mkdir -p "${DIR_TIMEMACHINE}"
-    fi
-    touch "${DIR_TIMEMACHINE}/.com.apple.TimeMachine.supported"
-    sed "s/<integer>.*<\/integer>/<integer>${QUOTA_TM}<\/integer>/g" /etc/TimeMachine.quota.tmpl > "${DIR_TIMEMACHINE}/.com.apple.TimeMachine.quota.plist"
-
-    echo "Configuring permissions on ${DIR_TIMEMACHINE}..."
-    chown -R "${USERNAME}:${USERNAME}" "${DIR_TIMEMACHINE}"
-    chmod -R u+rwX,g+rwX,o= "${DIR_TIMEMACHINE}"
+    echo "Configuring permissions on ${DIR}..."
+    chown -R "${USERNAME}:${USERNAME}" "${DIR}"
+    chmod -R u+rwX,g+rwX,o= "${DIR}"
 done
 
 echo "Set quota for SAMBA..."
