@@ -14,7 +14,7 @@ declare -A passwords
 
 echo "Checking if backup directory is properly mounted..."
 if ! grep "${BACKUPDIR}" /proc/mounts | awk '{print $1}' &> /dev/null; then
-    echo "${BACKUPDIR} not found. Dit you add a volume for ${BACKUPDIR}?"
+    echo "${BACKUPDIR} not found. Did you add a volume for ${BACKUPDIR}?"
     exit 1
 fi
 
@@ -38,7 +38,8 @@ fi
 for USERNAME in ${users[@]};
 do
     PASSWORD=${passwords["PASSWORD_${USERNAME^^}"]}
-    DIR=$BACKUPDIR/$USERNAME
+    DIR_TIMEMACHINE=$BACKUPDIR/timemachine/$USERNAME
+    DIR_WINBACKUP=$BACKUPDIR/winbackup/$USERNAME
 
     if ! id -u ${USERNAME} &> /dev/null; then
         echo "Creating user ${USERNAME}..."
@@ -50,16 +51,27 @@ do
         printf "%s\n%s\n" "${PASSWORD}" "${PASSWORD}" | smbpasswd -a -s "${USERNAME}"
     fi
 
-    if [ ! -d "$DIR" ]; then
-        echo "Creating backup directory for ${USERNAME}..."
-        mkdir "${DIR}"
+    #### WinBackup Directory ####
+    if [ ! -d "$DIR_WINBACKUP" ]; then
+        echo "Creating winbackup backup directory for ${USERNAME}..."
+        mkdir -p "${DIR_WINBACKUP}"
     fi
-    touch "${DIR}/.com.apple.TimeMachine.supported"
-    sed "s/<integer>.*<\/integer>/<integer>${QUOTA_TM}<\/integer>/g" /etc/TimeMachine.quota.tmpl > "${DIR}/.com.apple.TimeMachine.quota.plist"
 
-    echo "Configuring permissions on ${DIR}..."
-    chown -R "${USERNAME}:${USERNAME}" "${DIR}"
-    chmod -R u+rwX,g+rwX,o= "${DIR}"
+    echo "Configuring permissions on ${DIR_WINBACKUP}..."
+    chown -R "${USERNAME}:${USERNAME}" "${DIR_WINBACKUP}"
+    chmod -R u+rwX,g+rwX,o= "${DIR_WINBACKUP}"
+
+    #### TimeMachine Directory ####
+    if [ ! -d "$DIR_TIMEMACHINE" ]; then
+        echo "Creating timemachine backup directory for ${USERNAME}..."
+        mkdir -p "${DIR_TIMEMACHINE}"
+    fi
+    touch "${DIR_TIMEMACHINE}/.com.apple.TimeMachine.supported"
+    sed "s/<integer>.*<\/integer>/<integer>${QUOTA_TM}<\/integer>/g" /etc/TimeMachine.quota.tmpl > "${DIR_TIMEMACHINE}/.com.apple.TimeMachine.quota.plist"
+
+    echo "Configuring permissions on ${DIR_TIMEMACHINE}..."
+    chown -R "${USERNAME}:${USERNAME}" "${DIR_TIMEMACHINE}"
+    chmod -R u+rwX,g+rwX,o= "${DIR_TIMEMACHINE}"
 done
 
 echo "Set quota for SAMBA..."
