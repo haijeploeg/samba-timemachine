@@ -68,4 +68,4 @@ sed -i "s/fruit:time machine max size.*/fruit:time machine max size = ${QUOTA_SI
 echo "=================================================="
 echo "=           Starting SAMBA TimeMachine           ="
 echo "=================================================="
-exec /usr/sbin/smbd --no-process-group --log-stdout --foreground "$@"
+exec /usr/sbin/smbd --no-process-group --debug-stdout --foreground "$@"
